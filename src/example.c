@@ -3,11 +3,18 @@
 
 // Entry function
 void _start() {
-  print(STDOUT, "Hello stdout!\n");
-  print(STDERR, "Hello stderr!\n");
+  // Print to STDOUT fd
+  print(STDOUT, "Hello stdout\n");
+  // Print log to STDERR fd
+  print(STDERR, "Hello stderr\n");
 
-  // Print to a new file
-  int newfd = open("hello.txt", 0100 | 1 | 01000, 0644);
-  print(newfd, "Hi file!\n");
+  // Get a line of input and echo it back
+  char buffer[128];
+  print(STDOUT, "Enter text: ");
+  fgets(STDIN, buffer, sizeof(buffer));
+
+  print(STDOUT, buffer);
+
+  // Exit with success code
   exit(0);
 }
