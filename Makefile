@@ -1,33 +1,58 @@
-# Compiler and flags
-CC = gcc
-CFLAGS = -nostdlib -nostartfiles -nodefaultlibs -fno-stack-protector
+# Compiler / Assembler
+CC      = gcc
+CFLAGS  = -nostdlib -nostartfiles -nodefaultlibs -fno-stack-protector -w -ffreestanding
 LDFLAGS = -static
+ASM     = nasm
+ASFLAGS = -f elf64
 
-# Target executable
-TARGET = build/example
-SOURCE = src/example.c src/noblelib.c
+# Paths
+TARGET    = build/example
+C_SOURCES = src/example.c src/noblelib.c
+ASM_SOURCE= src/start.asm
+ASM_OBJECT= build/start.o
 
 # Default target
 all: $(TARGET)
 
-# Build the executable
-$(TARGET): $(SOURCE) 
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(SOURCE)
+# Link everything
+$(TARGET): $(C_SOURCES) $(ASM_OBJECT)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	strip $(TARGET) 
+
+# Assemble start.asm
+$(ASM_OBJECT): $(ASM_SOURCE)
+	$(ASM) $(ASFLAGS) $< -o $@
 
 # Run the program
 run: $(TARGET)
 	./$(TARGET)
 
+# Debug build with symbols
+debug: CFLAGS += -g
+debug: clean all
+
 # Clean build artifacts
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(ASM_OBJECT)
 
-# Debug version with symbols
-debug: CFLAGS += -g
-debug: $(TARGET)
-
-# Show what syscalls are being made
+# Trace syscalls
 strace: $(TARGET)
 	strace -e trace=write,exit ./$(TARGET)
 
-.PHONY: all run clean debug strace
+# Inspect disassembly
+objdump: $(TARGET)
+	objdump -d $(TARGET) | less
+
+# Inspect ELF headers/sections
+readelf: $(TARGET)
+	readelf -a $(TARGET) | less
+
+# Strip binary completely (no symbols, no notes)
+strip: $(TARGET)
+	objcopy --strip-all \
+	        --remove-section=.comment \
+	        --remove-section=.note.gnu.property \
+	        --remove-section=.note.gnu.build-id \
+	        --remove-section=.note.ABI-tag \
+	        $(TARGET)
+
