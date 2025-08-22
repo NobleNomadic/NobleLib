@@ -19,6 +19,12 @@
 #define STDOUT 1
 #define STDERR 2
 
+#define O_WRONLY 1
+#define O_CREAT  0100
+#define O_EXCL   0200
+#define O_RDONLY    0
+#define O_DIRECTORY 0200000
+
 // Define types
 typedef unsigned long size_t; // Size in bytes data type
 
@@ -38,7 +44,7 @@ void println(int fd, const char *s);                           // Use print twic
 long open(const char *path, int flags, int mode);              // Open a file and return fd
 long close(int fd);                                            // Close file descriptor
 size_t fgets(char *buffer, size_t bufferSize, int fd);         // Get a line of input into buffer
-long getdents(int fd, struct linux_dirent *buf, size_t count); // Read directory entries
+long getdents(int fd, linuxDirent *buf, size_t count);  // Read directory entries
 long mkdir(const char *path, unsigned int mode);               // Create new directory
 long deletefd(const char *path);                               // Unlink node from file system
 long stringCompare(const char *s1, const char *s2);            // String comparison

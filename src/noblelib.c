@@ -84,7 +84,7 @@ size_t fgets(char *buffer, size_t bufferSize, int fd) {
 }
 
 // Get entries in a directory using SYS_GETDENTS
-long getDirInfo(int fd, linuxDirent *dirent, size_t count) {
+long getdents(int fd, linuxDirent *dirent, size_t count) {
     // fd: directory file descriptor
     // dirent: buffer to store directory entries
     // count: size of buffer in bytes
@@ -132,7 +132,7 @@ long atoi(const char *s) {
         s++;
     }
 
-    return result * sign; // Apply sign and return
+    return (result * sign); // Apply sign and return
 }
 
 // Convert a long integer to a null-terminated string
